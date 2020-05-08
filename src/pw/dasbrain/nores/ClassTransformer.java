@@ -30,6 +30,8 @@ public class ClassTransformer extends ClassVisitor {
         ClassWriter cw = new ClassWriter(cr, 0);
         // Node - Class visitors are stacked upside down - the last visitor in this code will run first
         ClassVisitor cv = new CheckClassAdapter(cw);
+        
+        cv = new ClassRemapper(cv, ASMMapper.INSTANCE);
         // Last we change the names for some methods and classes.
         cv = new ClassRemapper(cv, NorrisRemapper.INSTANCE);
         // We replace the contents of those Strings.get calls
@@ -43,6 +45,7 @@ public class ClassTransformer extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor,
             String signature, String[] exceptions) {
+        if (name.equals("bootstrap$0")) return null;
         MethodVisitor parent = super.visitMethod(access, name, descriptor, signature,
                 exceptions);
         return new MethodTransformer(parent);

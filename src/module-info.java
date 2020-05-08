@@ -4,4 +4,5 @@ module pw.dasbrain.norris {
     
     // To determine if a class is an interface :/
     requires java.instrument;
+    requires java.net.http;
 }

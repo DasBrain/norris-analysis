@@ -23,13 +23,6 @@ public class NorrisRemapper extends Remapper {
                 };
                 default -> name;
             };
-            case "h" -> switch (name) {
-                case "b" -> switch (descriptor) {
-                    case "()[B" -> "toByteArray";
-                    default -> name;
-                };
-                default -> name;
-            };
             default -> name;
         };
     }
@@ -39,13 +32,6 @@ public class NorrisRemapper extends Remapper {
     public String map(String internalName) {
         return switch (internalName) {
             case "a" -> "AgentClassInfo";
-            case "t" -> "Opcodes";
-            case "f" -> "ClassReader";
-            case "h" -> "ClassWriter";
-            case "g" -> "ClassVisitor";
-            case "bq" -> "MethodNode";
-            case "r" -> "MethodVisitor";
-            case "ar" -> "AgentMethodNode";
             default -> internalName;
         };
     }

@@ -22,16 +22,25 @@ public class TransformJar implements Closeable {
     
     public TransformJar() throws IOException {
         in = FileSystems.newFileSystem(Path.of(INPUT_JAR));
-        String outpath = Path.of(OUTPUT_JAR).toAbsolutePath().toString()
+        Path outjar = Path.of(OUTPUT_JAR);
+        Files.deleteIfExists(outjar);
+        String outpath = outjar.toAbsolutePath().toString()
                 .replace(File.separatorChar, '/');
         out = FileSystems.newFileSystem(URI.create("jar:file:/" + outpath),
                 Map.of("create", "true"));
     }
     
     public static void main(String[] args) throws IOException {
+        ASMMapper.init(Path.of("ASM-5.0.4-noshrink.zip"));
         try (var transformJar = new TransformJar()) {
             transformJar.run();
         }
+    }
+    
+    private String mapName(String original) {
+        original = NorrisRemapper.INSTANCE.map(original);
+        original = ASMMapper.INSTANCE.map(original);
+        return original;
     }
     
     private void transform(Path p) {
@@ -42,8 +51,10 @@ public class TransformJar implements Closeable {
                 String name = p.toString();
                 if (name.endsWith(".class")) {
                     bytes = ClassTransformer.transform(bytes);
-                    pout = out.getPath("/" + NorrisRemapper.INSTANCE
-                            .map(name.substring(1, name.length() - 6)) + ".class");
+                    pout = out.getPath("/" + mapName(name.substring(1, name.length() - 6))
+                            + ".class");
+                    // just to be sure
+                    Files.createDirectories(pout.getParent());
                 }
                 
                 Files.write(pout, bytes, StandardOpenOption.CREATE);
